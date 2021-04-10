@@ -1,4 +1,27 @@
+clear all 
+clc 
+format long
+syms x
+F = [ x + sin(x) - 2 ;  x^2 + x - 5 ]
+PHI = [ 2 - sin(x) ;  5 - x^2 ]
+X0 =  [1.05 ; 1.5]
+DELTA = [10^-3; 10^-3]
+    F6(F, PHI, X0, DELTA)
+
+function [ANS] = F6(F, PHI, X0, DELTA)
+    k = 1
+    [ column, row] = size(DELTA)
+    while k <= column
+        lap(F(k,1), PHI(k,1),X0(k,1),DELTA(k,1))
+        k = k + 1
+    end
+end
+
 function [xn] = lap(f, phi, xo, Df)
+    f
+    phi 
+    xo 
+    Df
     syms x
     h = {'STT' 'x' 'f(x)' '|f(x) <= Df|' 'rEc'}
     k = 1; 
@@ -18,15 +41,19 @@ function [xn] = lap(f, phi, xo, Df)
         else 
             data(k, 4) = 0 ;
         end;
-        if k>99
+        if k > 10
             break;
         end
-
-        k = k + 1;
+        k = k + 1
         xo = xn;
     end
+    data
     xn = data(k,2);
     f=figure;
     t=uitable(f,'data',data,'columnname',h)
 end
+
+
+
+
 
