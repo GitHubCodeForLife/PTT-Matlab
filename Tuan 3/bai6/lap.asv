@@ -1,0 +1,26 @@
+function [xn] = lap(f, phi, xo, Df)
+    h = {'STT' 'x' 'f(x)' '|f(x) <= Df|' 'rEc'}
+    k = 0; 
+    data = []
+    xn = xo
+    while(abs(f(xn))<Df && k <=100)
+        data(k+1,4*k+1) = k+1;
+        data(k+1,4*k+1) = xn;
+        xn = phi(xo);
+        rExn = abs((xn-xo)/xo);
+        data(k+1,4*k + 4) = rExn;
+        fx = f(xn);
+        data(k+1,4*k+ 2) = fx;
+        if f(xn) < Df
+            data(k+1, 4*k + 3) = 'false'
+        else 
+            data(k+1, 4*k + 3) = 'true' 
+        end;
+        k = k + 1;
+        xo = xn;
+      end
+ 
+    f=figure;
+    t=uitable(f,'data',data,'columnname',h)
+end
+
