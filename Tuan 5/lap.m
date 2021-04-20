@@ -22,6 +22,6 @@ function [Xn, fX] = lap(A, C, tol )
         X0 = Xn;
         k = k+1;
     end
-    T = table(T_XN, T_FX, T_Condition, T_REX)
+    T = table(T_XN, T_FX, T_Condition, T_REX);
     T.Properties.VariableNames = {'X' 'Fx' 'Condition' 'REX'}
 end
