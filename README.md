@@ -1,4 +1,4 @@
-# Phương pháp tính matbal
+# Phương pháp tính matlab
 ## Tuần 2 phương pháp tính matlab
 
 Homeworks tuần 2: cả hai `lớp thứ 2 và thứ 3`.
