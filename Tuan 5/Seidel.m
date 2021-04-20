@@ -31,7 +31,7 @@ function [Xn, fX] = Seidel(A, C, tol )
        if fX <  tol break; end;
         X0 = Xn;
         k = k+1;
-       if k > 10 break; end;
+      
     end
     T = table(T_XN, T_FX, T_Condition, T_REX);
     T.Properties.VariableNames = {'Xn' 'Fx' 'Condition' 'REX'}
