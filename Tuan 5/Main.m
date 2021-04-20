@@ -7,9 +7,9 @@ A = [5 1 1; 1 10 1; 1 1 20];
 C = [7;12;22];
 tol = 10^-3;
 fprintf("---------PHuong phap lap--------\n");
-lap(A,C, tol);
+[Xn,fx] = lap(A,C, tol)
 fprintf("---------PHuong phap seidel--------\n");
-Seidel(A,C,tol);
+[Xn,fx] = Seidel(A,C,tol)
 
 
 A = [6 1 1 1 1;
@@ -20,6 +20,6 @@ A = [6 1 1 1 1;
 C = [9;1;-12;-12;5];
 tol = 10^-3;
 fprintf("---------PHuong phap lap--------\n");
-lap(A,C, tol);
+[Xn,fx] = lap(A,C, tol)
 fprintf("---------PHuong phap seidel--------\n");
-Seidel(A,C,tol);
+[Xn,fx] = Seidel(A,C,tol)
