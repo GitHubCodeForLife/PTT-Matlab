@@ -1,0 +1,208 @@
+clear all
+clc
+syms x
+tol = 10^(-3);
+a = 0;
+
+b = 1;
+f = @(x) 2*x - sin(x+1)
+x_ex = vpasolve(f(x) == 0,x,[a, b]);
+
+fprintf('------------------------END: Chia doi ---------------\n');
+chiadoi(f,a,b,tol)
+
+
+
+fprintf('------------------------END: Lap ---------------\n');
+phi = @(x) sin(x+1)/2
+x0 = 0.3
+lap(f, phi, x0,tol)
+
+
+
+fprintf('------------------------END: tiep tuyen ---------------\n');
+x0 = 0.3
+[SOL ,A] = tieptuyen(f,a,b,x0,x_ex,tol)
+
+fprintf('------------------------END: Day Cung ---------------\n');
+
+[SOL ,A] = daycung(f, a, b, x_ex, tol)
+
+
+
+function [c,fc] = chiadoi(f,a,b,Df)
+k=1
+%     k=1; hold on;
+    while 1;
+        c = (a+b)/2;
+        fc = f(c);
+        fprintf('\n%f ', a);
+        fprintf('%f ', b);
+        fprintf('%f ', c);
+        fprintf('%f ', fc);
+        if k > 7 break; end;
+        if abs(fc) < Df, break, end;
+        if f(a)*f(c) > 0 ,a = c;else b =c ;end;
+        k = k + 1
+    end;
+end
+ function [xn] = lap(f, phi, xo, Df)
+    h = {'STT' 'x' 'f(x)' '|f(x) <= Df|' 'rEc'};
+    k = 1; 
+    data = [];
+    xn = xo;
+    while abs(f(xn)) > Df 
+        data(k,1) = k;
+        xn = phi(xo);
+        data(k,2) = xn;
+        rExn = abs((xn-xo)/xo);
+        data(k,5) = rExn;
+        fx = f(xn);
+        data(k, 3) = fx;
+        if abs(fx) < Df
+            data(k, 4) = 1;
+            break;
+        else 
+            data(k, 4) = 0 ;
+        end;
+        if k>99
+            break;
+        end
+
+        k = k + 1;
+        xo = xn;
+    end
+    data
+%     xn = data(k,2);
+%     f=figure;
+%     t=uitable(f,'data',data,'columnname',h);
+end
+
+
+function [SOL, A] = tieptuyen(f, a, b, x0, x_ex, tol)
+format long
+syms x
+g = diff(f(x))
+g = matlabFunction(g)
+k=1;
+N_o = k;
+rEx = abs((x_ex - x0)/x_ex);
+
+x0 = x0 - f(x0)/g(x0);
+xn = x0;
+
+f_xn =  double(f(x0));
+
+if (abs(f(x0)) <= tol)
+    Condition = 1;
+else
+    Condition = 0 ;
+end
+
+while (abs(f(x0)) > tol && k <= 50)
+    x0 = x0 - f(x0)/g(x0);
+    k = k + 1;
+    N_o = double([N_o; k]);
+    xn = double([xn; x0]);
+    f_xn = double([f_xn; f(x0)]);
+    
+    if (abs(f(x0)) <= tol)
+        Condition = double([Condition; 1]);
+    else
+        Condition = double([Condition; 0]);
+    end
+    
+    rEx = double([rEx; abs((x_ex - x0)/x_ex)]);
+end
+SOL = double(x0);
+Condition = logical(Condition);
+A = table(N_o, xn, f_xn, Condition, rEx);
+
+% Draw table
+% h = {'N_o' 'xn' 'f(x)' '|f(x) <= Df|' 'rEc'};
+% data = cat(2,N_o, xn, f_xn, Condition, rEx);
+% f=figure;
+% uitable(f,'data',data,'columnname',h);
+
+
+%draw plot
+figure
+hold on
+grid on
+for ii = 1:length(xn)
+    if (ii == length(xn))
+        plot(xn(ii), f_xn(ii), 'r*', 'LineWidth', 1.5);
+    end
+    plot(xn(ii),f_xn(ii),'g*');
+end
+grp1 = fplot(f,[a,b],'c');
+grp2 = plot([a,b],[0 0], 'b--');
+xlabel('x-axis'); ylabel('y-axis');
+legend([grp1 grp2], {'f-function', 'line y = 0'});
+
+end
+
+function [SOL, A] = daycung(f, a, b, x_ex, tol)
+format long
+syms x
+k = 1;
+N_o = k;
+c =a - ((b - a)/(double(f(b)) - double(f(a)))*double(f(a)));
+rEx = abs((x_ex - c)/x_ex);   
+a_n = a;
+b_n = b;
+c_n = c;
+f_xn =  double(f(c));
+
+if (abs(f(c)) <= tol)
+    Condition = 1;
+else
+    Condition = 0 ;
+end
+
+while (abs(f(c)) > tol && k <= 50)
+    
+    if (double(f(a))*double(f(c)) > 0)
+        a = c;
+    else
+        b = c;
+    end
+    
+    c = a - ((b - a)/(double(f(b)) - double(f(a)))*double(f(a)));
+    
+    c_n = [c_n; c];
+    a_n = [a_n; a];
+    b_n = [b_n; b];
+    k = k + 1;
+    N_o = double([N_o; k]);
+    f_xn = double([f_xn; f(c)]);
+    
+    if (abs(f(c)) <= tol)
+        Condition = [Condition; 1];
+    else
+        Condition = [Condition; 0];
+    end
+    
+    rEx = double([rEx; abs((x_ex - c)/x_ex)]);
+end
+SOL = double(c);
+Condition = logical(Condition);
+A = table(N_o, a_n, b_n, c_n, f_xn, Condition, rEx);
+hold on
+grid on
+for ii = 1:length(c_n)
+    if (ii == length(c_n))
+        plot(c_n(ii), f_xn(ii), 'r*', 'LineWidth', 1.5);
+        
+    end
+    plot(c_n(ii),f_xn(ii),'g*');
+end
+grp1 = fplot(f,[min(a_n),max(b_n)],'c');
+grp2 = plot([min(a_n),max(b_n)],[0 0], 'b--');
+xlabel('x-axis'); ylabel('y-axis');
+legend([grp1 grp2], {'f-function', 'line y = 0'});
+
+end
+
+
+
