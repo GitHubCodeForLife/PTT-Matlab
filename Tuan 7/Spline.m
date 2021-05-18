@@ -30,19 +30,22 @@ function [] = Spline(xx,yy,xc,pos)
     % Xay dung da thuc noi suy S(i)
     syms x
     S = zeros(1, n-1);
+    for i = 1:n-1
+        S(i) = sym(0);
+    end
+    
     for ii = 1:n-1
-        n
         S(ii) = m(ii+1) * (x-xx(ii))^3/(6*h(ii))...
-            + m(ii) * (xx(ii+1-x))^3/(6*h(ii))...
+            + m(ii) * (xx(ii+1)-x)^3/(6*h(ii))...
             + M(ii) * (xx(ii+1)-x)/h(ii)...
             + N(ii) * (x-xx(ii))/h(ii);
-        S(ii) = matlabFunction(S(ii));
+        S(ii) = matlabFunction(S(ii))
     end
 
     % Xap xi gia tri y(i)
     for i = 1:length(xc)
         temp = S(pos(i));
-        temp(xc(ii))
+        temp(xc(i))
     end
     
     % Ve cac diem trong bang du lieu va ham spline
