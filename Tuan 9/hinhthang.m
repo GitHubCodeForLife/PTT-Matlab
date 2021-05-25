@@ -1,8 +1,9 @@
-function [] = hinhthang(xx,yy,df)
-    n = length(xx)
-    S = 0 
-    for i = 2:n
-        S = S + 0.5*(xx(i)- xx(i-1))*(yy(i-1)+yy(i)) ;
+function [I_a,rEI] = hinhthang(xx,yy,I_e)
+    n = length(xx);
+    I_a = 0;
+    
+    for ii = 2:n
+        I_a = I_a + ((xx(ii)-xx(ii-1)) * (yy(ii-1)+yy(ii)))/2;
     end
-    S
+    rEI = abs((I_e-I_a)/I_e);
 end
