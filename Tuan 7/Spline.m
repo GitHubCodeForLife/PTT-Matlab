@@ -1,58 +1,57 @@
-function [] = Spline(xx,yy,xc,pos)
-    n = length(xx);
+function [] = Spline(xx,yy,xc)
     h = xx(2:end) - xx(1:end-1);
-    VT = zeros(n,n);
-    VP = zeros(n,1);
+    n = length(xx);
+    n = n - 1;
+    A = zeros(n-1);
+    b = zeros(n-1,1);
     
-    % Giai hpt tim gia tri m(i)
-    % Dong 1
-    VT(1,:) = [1,0,0,0];
-    VP(1) = 0;
-    
-    % Dong 2 -> n-1
-    for ii = 2:n-1
-        VT(ii,ii-1) = h(ii-1)/6;
-        VT(ii,ii)   = (h(ii-1)+h(ii))/3;
-        VT(ii,ii+1) = h(ii)/6;
-        VP(ii)      = (yy(ii+1)-yy(ii))/h(ii) - (yy(ii)-yy(ii-1))/h(ii-1);
+    for ii = 1:(n-1)
+        if ii == 1
+            A(ii, ii) = (h(ii) + h(ii+1))/3;
+            A(ii, ii+1) = h(ii+1)/6;
+            b(ii) = (yy(ii+2) - yy(ii+1))/h(ii+1) - (yy(ii+1) - yy(ii))/h(ii);
+        elseif ii == n-1
+            A(ii, ii-1) = h(ii)/6;
+            A(ii, ii) = (h(ii) + h(ii+1))/3;
+            b(ii) = (yy(ii+2) - yy(ii+1))/h(ii+1) - (yy(ii+1) - yy(ii))/h(ii);
+        else
+            A(ii, ii-1) = h(ii)/6;
+            A(ii, ii) = (h(ii) + h(ii+1))/3;
+            A(ii, ii+1) = h(ii+1)/6;
+            b(ii) = (yy(ii+2) - yy(ii+1))/h(ii+1) - (yy(ii+1) - yy(ii))/h(ii);
+        end
     end
+    A
     
-    % Dong n
-    VT(n,:) = [0,0,0,1];
-    VP(n) = 0;
-    
-    m = inv(VT)*(VP);
-    
-    % Tim gia tri M(i) va N(i)
-    M=yy(1:end-1)-m(1:end-1).*h(1:end).^2/6;
-    N=yy(2:end)-m(2:end).*h(1:end).^2/6;
-    
-    % Xay dung da thuc noi suy S(i)
     syms x
-    S = zeros(1, n-1);
-    for i = 1:n-1
-        S(i) = sym(0);
+    m = [0, (A\b)', 0];
+    S = x*ones(n,1);
+    for ii = 1:n
+        M = yy(ii) - m(ii)*h(ii)^2/6;
+        N = yy(ii+1) - m(ii+1)*h(ii)^2/6;
+        S(ii) = m(ii+1)*((x-xx(ii))^3)/(6*h(ii)) + m(ii)*((x-xx(ii+1))^3)/(6*h(ii))...
+            + M*(xx(ii+1)-x)/h(ii) + N*(x-xx(ii))/h(ii);
     end
     
-    for ii = 1:n-1
-        S(ii) = m(ii+1) * (x-xx(ii))^3/(6*h(ii))...
-            + m(ii) * (xx(ii+1)-x)^3/(6*h(ii))...
-            + M(ii) * (xx(ii+1)-x)/h(ii)...
-            + N(ii) * (x-xx(ii))/h(ii);
-        S(ii) = matlabFunction(S(ii))
-    end
-
-    % Xap xi gia tri y(i)
-    for i = 1:length(xc)
-        temp = S(pos(i));
-        temp(xc(i))
-    end
-    
-    % Ve cac diem trong bang du lieu va ham spline
+    figure
     hold on
-    plot(xx,yy,'v-')
-    
-    for i = 1:n-1
-        ezplot(S(i),[xx(i) xx(i+1)])
+    grid on
+    for ii = 1:length(xc)
+        k = 1;
+        while (k<=n)
+            if (xc(ii) >= xx(k) && xc(ii) <= xx(k+1))
+                break;
+            end
+            k = k + 1;
+        end
+        yc = subs(S(k), x, xc(ii));
+        fprintf('Gia tri noi suy tai x = %.4f la: %.8f.\n', xc(ii), yc);
+        plot(xc(ii), yc, 'ro');
     end
+    
+    for ii = 1:n
+        h = fplot(S(ii),[xx(ii) xx(ii+1)], 'b', 'Linewidth',1);
+    end
+    k = plot(xx,yy, 'm*-', 'Linewidth',0.5);
+    legend([h,k],'Da thuc xap xi.','Gia tri chinh xac.');
 end
